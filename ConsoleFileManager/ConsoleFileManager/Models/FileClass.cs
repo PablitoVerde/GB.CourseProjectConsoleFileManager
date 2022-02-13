@@ -5,9 +5,9 @@ using System.IO;
 
 //Базовый класс файла. Имя выбрано таким, чтобы избежать путаницы с базовой библиотекой
 
-namespace ConsoleFileManager
+namespace ConsoleFileManager.Models
 {
-    internal class FileClass : SystemObject
+    public class FileClass : SystemObject
     {
         public string Type { get; set; }
 

@@ -4,9 +4,9 @@ using System.Text;
 using System.IO;
 
 //Базовый класс работы с директориями. Имя выбрано намеренно, чтобы не путать с базовой библиотекой
-namespace ConsoleFileManager
+namespace ConsoleFileManager.Models
 {
-    internal class DirectoryClass : SystemObject
+    public class DirectoryClass : SystemObject
     {
         /// <summary>
         /// Свойство получения размера директории
