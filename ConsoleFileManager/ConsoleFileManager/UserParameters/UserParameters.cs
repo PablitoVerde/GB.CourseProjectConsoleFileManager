@@ -6,7 +6,7 @@ using System.Text;
 //Класс для создания и хранения пользовательских данных
 namespace ConsoleFileManager.UserParameters
 {
-    class UserParameters
+    public class UserParameters
     {
         //Свойства класса
         public string UserName { get; set; }
