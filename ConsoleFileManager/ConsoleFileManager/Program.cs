@@ -18,12 +18,12 @@ public static class Program
         FileManagerCommand[] commands =
         {
             help_command,
-            new FileManagerPrintDirectoriesCommand(),
-            new FileManagerPrintDrivesCommand(),
-            new FileManagerPrintFilesCommand(),
+          //  new FileManagerPrintDirectoriesCommand(),
+          //  new FileManagerPrintDrivesCommand(),
+         //   new FileManagerPrintFilesCommand(),
         };
 
-        var result = commands.ToDictionary(cmd => cmd.Name);
+        var result = commands.ToDictionary(cmd => cmd.CommandName);
 
         return result;
     }
@@ -40,9 +40,8 @@ public static class Program
 
         while (showMenu)
         {
-            Console.Clear();
 
-            Console.Write("Введите команду >");
+            Console.Write("Введите команду > ");
 
             string command_line = Console.ReadLine();
 
@@ -52,8 +51,13 @@ public static class Program
             }
             else
             {
-                command.Execute();
+                command.CommandExecute();
             }
+
+            Console.WriteLine("Введите новую команду");
+            Console.Write("Введите команду > ");
+
+
         }
 
         Console.WriteLine("Программа завершена");
