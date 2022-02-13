@@ -40,7 +40,6 @@ public static class Program
 
         while (showMenu)
         {
-
             Console.Write("Введите команду > ");
 
             string command_line = Console.ReadLine();
@@ -53,11 +52,6 @@ public static class Program
             {
                 command.CommandExecute();
             }
-
-            Console.WriteLine("Введите новую команду");
-            Console.Write("Введите команду > ");
-
-
         }
 
         Console.WriteLine("Программа завершена");
