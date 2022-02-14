@@ -1,18 +1,10 @@
 ﻿using ConsoleFileManager.Commands;
 using ConsoleFileManager.Models;
-using ConsoleFileManager.UserParameters;
-using System.Text;
-using System.Text.Json;
+using ConsoleFileManager.Options;
+using ConsoleFileManager.Grafics;
 
 public static class Program
 {
-    //Дефолтные установки приложения.
-    static UserParameters userparam = new UserParameters();
-
-    //Пути до пользовательского каталога с настройками и ошибками
-    static StringBuilder pathToErrors = new StringBuilder();
-    static StringBuilder pathToSettings = new StringBuilder();
-
     //Текущая директория
     public static DirectoryClass CurrentDirectory { get; set; }
 
@@ -29,7 +21,7 @@ public static class Program
         FileManagerCommand[] commands =
         {
             help_command,
-          //  new FileManagerPrintDirectoriesCommand(),
+            new FileManagerCommandEditUser(),
           //  new FileManagerPrintDrivesCommand(),
          //   new FileManagerPrintFilesCommand(),
         };
@@ -44,87 +36,34 @@ public static class Program
 
         // Приветствие
         Console.WriteLine("Добро пожаловать в файловый менеджер!");
-        Console.WriteLine("Нажмите любую клавишу для продолжения");
-        Console.ReadKey();
 
-        //Построение пути до пользовательских настроек     
-        pathToSettings.Append(Environment.GetFolderPath(Environment.SpecialFolder.Personal));
-        pathToSettings.Append(@"\ConsoleFileManager\Settings");
-        string filePath = pathToSettings.ToString() + @"\appsettings.json";
+        UserParameters userParameters = new UserParameters();
 
-        pathToErrors.Append(Environment.GetFolderPath(Environment.SpecialFolder.Personal));
-        pathToErrors.Append(@"\ConsoleFileManager\Errors");
-        Directory.CreateDirectory(pathToErrors.ToString());
-
-        if (File.Exists(filePath))
+        if (userParameters.LoadUserParameters())
         {
-            //Проверка на "битые" настройки. В случае их неисправности, файл удаляется, настройки создаются "дефолтными"
-            try
-            {
-                //если пользовательский файл существует, то считываем настройки из него и заменяем дефолтные
-                string str = File.ReadAllText(filePath);
-                UserParameters userparamFromFile = JsonSerializer.Deserialize<UserParameters>(str);
-                userparam.UserName = userparamFromFile.UserName;
-                userparam.LastPathToDirectory = userparamFromFile.LastPathToDirectory;
-                userparam.FilesAndDirScale = userparamFromFile.FilesAndDirScale;
-                userparam.CurrentPage = userparamFromFile.CurrentPage;
-            }
-            catch (Exception ex)
-            {
-                SaveErrors(ex);
-                File.Delete(filePath);
-                userparam = new UserParameters();
-            }
+            Console.WriteLine($"Пользователь {userParameters.UserName} успешно загружен.");
         }
         else
         {
-            //если пользовательского файла не существует, дефолтные сохраняем в файл.
-            Directory.CreateDirectory(pathToSettings.ToString());
-            File.Create(filePath).Close();
-            string jsonser = JsonSerializer.Serialize(userparam);
-            File.WriteAllText(filePath, jsonser);
+            Console.WriteLine($"Создан новый пользователь {userParameters.UserName}.");
+            userParameters.SaveUserParameters();
         }
 
-        //Отрисовка файлового менеджера с каталогами
+        Console.WriteLine("Нажмите любую клавишу для продолжения");
+        Console.ReadKey();
+        Console.Clear();
+
         bool programStatus = true;
+
         while (programStatus)
         {
-            //Очитска консоли перед выводом актуальных данных
-            Console.Clear();
-
-            // вывод на экран текущей директории
-            Console.WriteLine(userparam.LastPathToDirectory + @"\");
-            // MenuDrawings.DrawHorizontalLine();
-
-            //получение списка файлов и папок, включая вложенные, на основании параметров пользователя
-            //    string[] listOfFilesDir = FilesAndDirectories.GetDirectories(userparam.LastPathToDirectory);
-
-            //вывод страницы каталога
-            //  FilesAndDirectories.ShowPage(userparam.FilesAndDirScale, userparam.CurrentPage, listOfFilesDir);
-
-            //   MenuDrawings.DrawHorizontalLine();
-
-            Console.Write("Введите команду: ");
-
-            string userCommand = Console.ReadLine();
-
-            // ParseUserCommand(userCommand);
-
-            //Сохранение пользовательских настроек после каждой отрисовки поля
-            SaveUserOptions(filePath);
-        }
-
-        bool showMenu = true;
-
-        while (showMenu)
-        {
-            Console.Write("Введите команду > ");
+            Console.Write($"{userParameters.UserName}: введите команду > ");
 
             string command_line = Console.ReadLine();
 
             if (!Commands.TryGetValue(command_line, out var command))
             {
-                Console.WriteLine("Неизвестная команда {0}. Для помощи напишите help", command_line);
+                Console.WriteLine($"Неизвестная команда {command_line}. Для помощи напишите help");
             }
             else
             {
@@ -134,20 +73,4 @@ public static class Program
 
         Console.WriteLine("Программа завершена");
     }
-
-    //Метод для сохранения пользовательских настроек в файл
-    public static void SaveUserOptions(string _filePath)
-    {
-        string jsonser = JsonSerializer.Serialize(userparam);
-        File.WriteAllText(_filePath, jsonser);
-    }
-
-    //Метод сохранения отловленных ошибок. В названии - тип ошибки и дата, в файле - текст ошибки
-    public static void SaveErrors(Exception e)
-    {
-        string errorName = $"{pathToErrors}\\{e.GetType().ToString()}-{DateTime.Today.ToShortTimeString()}.txt";
-        File.Create(errorName).Close();
-        File.WriteAllText(errorName, e.Message.ToString());
-    }
-
 }

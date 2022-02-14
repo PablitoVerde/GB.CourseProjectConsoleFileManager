@@ -16,9 +16,9 @@ namespace ConsoleFileManager.Commands
 
         public override void CommandExecute()
         {
-           foreach (var (CommandName, CommandDescription) in Program.Commands)
+           foreach (var (CommandName, Command) in Program.Commands)
             {
-                Console.WriteLine("\t{0}\t-\t{1}", CommandName, CommandDescription);
+                Console.WriteLine("\t{0}\t-\t{1}", CommandName, Command.CommandDescription);
             }
         }
     }
