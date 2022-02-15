@@ -7,33 +7,40 @@ using System.IO;
 
 namespace ConsoleFileManager.Models
 {
-    public class FileClass : SystemObject
+    public class FileClass : FileDirectorySystemObject
     {
-        public string Type { get; set; }
+        private readonly FileInfo _File;
 
-        public bool IsReadOnly { get; set; }
+        public string Name => _File.Name;
 
+        public string Extension => _File.Extension;
 
-        public FileClass()
-        {
+        public bool Exist => _File.Exists;
 
-        }
 
         /// <summary>
         /// Конструктор для создания объекта класса Файл.
         /// </summary>
         /// <param Путь до файла="path"></param>
-        public FileClass(string path)
+        public FileClass(string filePath)
         {
-            Name = Path.GetFileName(path);
-            PathToObject = Path.GetFullPath(path);
-            Type = Path.GetExtension(path);
+            _File = new FileInfo(filePath);
+        }
 
-            FileInfo fileInfo = new FileInfo(path);
+        public FileClass(FileInfo fileInfo)
+        {
+            _File = fileInfo;
+        }
 
-            Size = fileInfo.Length;
-            IsReadOnly = fileInfo.IsReadOnly;
-            IsHidden = fileInfo.Attributes.HasFlag(FileAttributes.ReadOnly);
+        public IEnumerable<string> EnumerateLines()
+        {
+            if (!_File.Exists)
+                throw new FileNotFoundException("Файл не найден", _File.FullName);
+
+            using var reader = _File.OpenText();
+
+            while (!reader.EndOfStream)
+                yield return reader.ReadLine()!;
         }
     }
 }

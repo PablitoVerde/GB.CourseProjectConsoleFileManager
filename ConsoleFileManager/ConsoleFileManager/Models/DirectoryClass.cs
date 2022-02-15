@@ -3,62 +3,105 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
+
 //Базовый класс работы с директориями. Имя выбрано намеренно, чтобы не путать с базовой библиотекой
 namespace ConsoleFileManager.Models
 {
-    public class DirectoryClass : SystemObject
+    public class DirectoryClass : FileDirectorySystemObject
     {
-        /// <summary>
-        /// Свойство получения размера директории
-        /// </summary>
-        public long Size
+        private readonly DirectoryInfo _Directory;
+
+        public string Name => _Directory.Name;
+
+        public string Extension => _Directory.Extension;
+
+        public bool Exist => _Directory.Exists;
+
+        public long TotalSize => _Directory
+           .EnumerateFiles("*.*", SearchOption.AllDirectories)
+           .Sum(f => f.Length);
+
+        public long GetTotalLength() => _Directory
+           .EnumerateFiles("*.*", SearchOption.AllDirectories)
+           .Sum(f => f.Length);
+
+        public DirectoryClass(string directoryPath)
         {
-            get
+            _Directory = new DirectoryInfo(directoryPath);
+        }
+
+        public DirectoryClass(DirectoryInfo directoryInfo)
+        {
+            _Directory = directoryInfo;
+        }
+
+        public DirectoryInfo[] GetDirectories(string? Mask = null)
+        {
+            if (Mask is null)
+                return _Directory.GetDirectories();
+
+            return _Directory.GetDirectories(Mask);
+        }
+
+        public FileInfo[] GetFiles(string? Mask = null)
+        {
+            if (Mask is null)
+                return _Directory.GetFiles();
+
+            return _Directory.GetFiles(Mask);
+        }
+        public IEnumerable<DirectoryClass> EnumerateDirectories(string? Mask = null)
+        {
+            var files = Mask is null
+                ? _Directory.EnumerateDirectories()
+                : _Directory.EnumerateDirectories(Mask);
+
+            foreach (var directory in files)
+                yield return (DirectoryClass)directory;
+        }
+
+        public IEnumerable<FileClass> EnumerateFiles(string? Mask = null)
+        {
+            if (Mask is null)
+                return _Directory.EnumerateFiles().Select(file => new FileClass(file));
+
+            return _Directory.EnumerateFiles(Mask).Select(file => new FileClass(file));
+        }
+        public IEnumerable<FileDirectorySystemObject> EnumerateContent(string? Mask = null)
+        {
+            var items = Mask is null
+                ? _Directory.EnumerateFileSystemInfos()
+                : _Directory.EnumerateFileSystemInfos(Mask);
+
+
+
+            return items.Select<FileSystemInfo, FileDirectorySystemObject>(item => item switch
             {
-                return GetDirectorySize(PathToObject);
-            }
+                FileInfo file => new FileClass(file),
+                DirectoryInfo dir => new DirectoryClass(dir),
+                _ => throw new InvalidOperationException("Неподдерживаемый тип данных " + item.GetType())
+            });
         }
 
-        public DirectoryClass()
+        public FileClass[] GetFiles(int Skip, int Count)
         {
-
+            return EnumerateFiles()
+               .Skip(Skip)
+               .Take(Count)
+               .ToArray();
         }
 
-        public DirectoryClass(string path)
+        public FilesPage GetFilesPage(int index, int size)
         {
-            Name = Path.GetDirectoryName(path);
-            PathToObject = path;
-            DirectoryInfo directoryInfo = new DirectoryInfo(path);           
-            IsHidden = directoryInfo.Attributes.HasFlag(FileAttributes.Hidden);
+            var all_files = EnumerateFiles();
+            var page_files = all_files.Skip(index * size).Take(size).ToArray();
+            var total_count = all_files.Count();
+
+            return new FilesPage(index, page_files.Length, size, page_files, total_count);
         }
 
-        /// <summary>
-        /// Приватный метод получения размера файла
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        private long GetDirectorySize(string path)
-        {
-            long result = 0;
+        public static implicit operator DirectoryInfo(DirectoryClass model) => model._Directory;
 
-            //Пройти по подпапкам и файлам
-            string[] dirs = Directory.GetDirectories(path);
-            string[] files = Directory.GetFiles(path);
-
-            //Собрать размер файлов в папке
-            foreach (string f in files)
-            {
-                FileClass file = new FileClass(f);
-                result = result + file.Size;
-            }
-
-            //Пройти с рекурсией по подпапкам и далее
-            foreach (string d in dirs)
-            {
-                result = result + GetDirectorySize(d);
-            }
-
-            return result;
-        }
+        public static explicit operator DirectoryClass(DirectoryInfo dir) => new DirectoryClass(dir);
     }
 }

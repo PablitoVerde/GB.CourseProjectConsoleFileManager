@@ -22,7 +22,8 @@ public static class Program
         {
             help_command,
             new FileManagerCommandEditUser(),
-          //  new FileManagerPrintDrivesCommand(),
+            new FileManagerCommandPrintDrives(),
+            new FileManagerCommandChangeDirectory(),
          //   new FileManagerPrintFilesCommand(),
         };
 
@@ -57,20 +58,33 @@ public static class Program
 
         while (programStatus)
         {
-            Console.Write($"{userParameters.UserName}: введите команду > ");
+            Console.Clear();
+
+            FileManagerCommandPrintCurrentDirectory pcd =  new FileManagerCommandPrintCurrentDirectory();  
+            pcd.CommandExecute();
+
+            Console.Write($"{userParameters.UserName}. Для выхода введите exit. Введите команду > ");
 
             string command_line = Console.ReadLine();
 
             if (!Commands.TryGetValue(command_line, out var command))
             {
-                Console.WriteLine($"Неизвестная команда {command_line}. Для помощи напишите help");
+                if (command_line == "exit")
+                {
+                    userParameters.SaveUserParameters();
+                    programStatus = false;
+                }
+                else
+                    Console.WriteLine($"Неизвестная команда {command_line}. Для помощи напишите help");
             }
             else
             {
                 command.CommandExecute();
             }
+
+            Console.ReadKey();
         }
 
-        Console.WriteLine("Программа завершена");
+        Console.WriteLine("Программа завершена.");
     }
 }
