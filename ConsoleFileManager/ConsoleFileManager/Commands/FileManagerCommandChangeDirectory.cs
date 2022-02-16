@@ -25,7 +25,7 @@ namespace ConsoleFileManager.Commands
             Console.WriteLine("Введите новую директорию > ");
             string dir = Console.ReadLine();
 
-            if (!Directory.Exists(dir))
+            if (Directory.Exists(dir))
             {
                 userParameters.LastPathToDirectory = dir;
                 userParameters.SaveUserParameters();

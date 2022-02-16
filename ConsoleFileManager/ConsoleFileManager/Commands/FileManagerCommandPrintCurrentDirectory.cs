@@ -27,14 +27,22 @@ namespace ConsoleFileManager.Commands
 
             FilesPage filesPage = new FilesPage();
 
-            var str = new DirectoryClass(userParameters.LastPathToDirectory).GetFilesPage(userParameters.CurrentPage,userParameters.FilesAndDirScale);
+            var str = filesPage.GetPage(new DirectoryClass(userParameters.LastPathToDirectory), userParameters);
 
-            foreach (FilePage str2 in str)
+            MenuDrawings.DrawHorizontalLine();
+
+            foreach (string str2 in str)
             {
                 Console.WriteLine(str2);
             }
+            MenuDrawings.DrawHorizontalLine();
 
-            Console.ReadKey();
+            Console.WriteLine($"Количество строк вывода {userParameters.FilesAndDirScale}. " +
+                $"\nВсего элементов в директории {str.Count}. " +
+                $"\nПоказана страница {userParameters.CurrentPage}. " +
+                $"\nВсего страниц {Math.Floor((double)(str.Count + userParameters.FilesAndDirScale) / (double)userParameters.FilesAndDirScale)}.");
+
+            MenuDrawings.DrawHorizontalLine();
         }
     }
 }

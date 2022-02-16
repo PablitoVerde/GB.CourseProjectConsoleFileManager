@@ -14,7 +14,7 @@ namespace ConsoleFileManager.Grafics
             {
                 Console.Write('-');
             }
-            Console.WriteLine(Environment.NewLine);
+            Console.Write(Environment.NewLine);
         }
     }
 }

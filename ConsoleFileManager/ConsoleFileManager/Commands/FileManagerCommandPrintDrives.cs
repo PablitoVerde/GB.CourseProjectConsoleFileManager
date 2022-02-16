@@ -20,7 +20,7 @@ namespace ConsoleFileManager.Commands
             MenuDrawings.DrawHorizontalLine();
             var drives = DriveInfo.GetDrives();
             foreach (var drive in drives)
-                Console.WriteLine("{0} : {1}", drive.Name, drive.RootDirectory.Name);
+                Console.WriteLine("{0}", drive.Name);
         }
     }
 }

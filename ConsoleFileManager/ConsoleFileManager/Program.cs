@@ -24,7 +24,13 @@ public static class Program
             new FileManagerCommandEditUser(),
             new FileManagerCommandPrintDrives(),
             new FileManagerCommandChangeDirectory(),
-         //   new FileManagerPrintFilesCommand(),
+            new FileManagerCommandCreateFolder(),
+            new FileManagerCommandCreateFile(),
+            new FileManagerCommandDelete(),
+            new FileManagerCommandMove(),
+            new FileManagerCommandCopy(),
+            new FileManagerCommandGetSize(),
+            new FileManagerCommandChangePage()
         };
 
         var result = commands.ToDictionary(cmd => cmd.CommandName);
@@ -63,7 +69,10 @@ public static class Program
             FileManagerCommandPrintCurrentDirectory pcd =  new FileManagerCommandPrintCurrentDirectory();  
             pcd.CommandExecute();
 
-            Console.Write($"{userParameters.UserName}. Для выхода введите exit. Введите команду > ");
+            Console.WriteLine("Для выхода введите exit.");
+            MenuDrawings.DrawHorizontalLine();
+
+            Console.Write($"{userParameters.UserName}: введите команду > ");
 
             string command_line = Console.ReadLine();
 
@@ -86,5 +95,6 @@ public static class Program
         }
 
         Console.WriteLine("Программа завершена.");
+        Console.ReadKey();
     }
 }

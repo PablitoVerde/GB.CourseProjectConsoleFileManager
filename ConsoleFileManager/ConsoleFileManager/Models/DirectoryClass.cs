@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using ConsoleFileManager.Options;
 
 
 //Базовый класс работы с директориями. Имя выбрано намеренно, чтобы не путать с базовой библиотекой
@@ -103,5 +104,80 @@ namespace ConsoleFileManager.Models
         public static implicit operator DirectoryInfo(DirectoryClass model) => model._Directory;
 
         public static explicit operator DirectoryClass(DirectoryInfo dir) => new DirectoryClass(dir);
+
+        public bool CreateFolder(string name, UserParameters userParameters)
+        {
+            try
+            {
+                if (!Directory.Exists(name))
+                {
+                    Directory.CreateDirectory(name);
+                    return true;
+                }
+                else
+                    return false;
+            }
+            catch (Exception ex)
+            {
+                userParameters.SaveUserErrors(ex);
+                return false;
+            }
+        }
+
+        public bool DeleteFolder(string name, UserParameters userParameters)
+        {
+            try
+            {
+                if (Directory.Exists(name))
+                {
+                    Directory.Delete(name);
+                    return true;
+                }
+                else
+                    return false;
+            }
+            catch (Exception ex)
+            {
+                userParameters.SaveUserErrors(ex);
+                return false;
+            }
+        }
+
+        public bool MoveFolder(string toPath, UserParameters userParameters)
+        {
+            try
+            {
+                Directory.Move(_Directory.FullName, toPath);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                userParameters.SaveUserErrors(ex);
+                return false;
+            }
+        }
+
+        public bool CopyFolder(string toPath, UserParameters userParameters)
+        {
+            try
+            {
+                Directory.CreateDirectory(toPath);
+                foreach (string s1 in Directory.GetFiles(_Directory.FullName))
+                {
+                    string s2 = toPath + "\\" + Path.GetFileName(s1);
+                    File.Copy(s1, s2);
+                }
+                foreach (string s in Directory.GetDirectories(_Directory.FullName))
+                {
+                    CopyFolder(toPath + "\\" + Path.GetFileName(s), userParameters);
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                userParameters.SaveUserErrors(ex);
+                return false;
+            }
+        }
     }
 }

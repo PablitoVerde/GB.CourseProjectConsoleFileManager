@@ -36,7 +36,7 @@ namespace ConsoleFileManager.Models
         }
 
 
-        public void GetPage(DirectoryClass directoryClass, UserParameters userParameters, string? mask = null)
+        public List<string> GetPage(DirectoryClass directoryClass, UserParameters userParameters, string? mask = null)
         {
             DirectoryInfo[] directoryInfos;
 
@@ -50,9 +50,22 @@ namespace ConsoleFileManager.Models
             if (mask is null)
                 fileInfos = directoryClass.GetFiles();
             else
-                fileInfos = directoryClass.GetFiles(mask);
+                fileInfos = directoryClass.GetFiles(mask);         
 
-            int count = fileInfos.Length + directoryInfos.Length;
+            List<string> result = new List<string>();
+
+         
+            foreach(DirectoryInfo directoryInfo in directoryInfos)
+            {
+                result.Add(directoryInfo.FullName);
+            }
+
+            foreach(FileInfo fileInfo in fileInfos)
+            {
+                result.Add(fileInfo.FullName);
+            }
+
+            return result.Skip((userParameters.CurrentPage-1)*userParameters.FilesAndDirScale).Take(userParameters.FilesAndDirScale).ToList();
         }
     }
 }
